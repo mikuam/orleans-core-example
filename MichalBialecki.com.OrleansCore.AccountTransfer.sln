@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MichalBialecki.com.OrleansCore.AccountTransfer.Host", "MichalBialecki.com.OrleansCore.AccountTransfer.Host\MichalBialecki.com.OrleansCore.AccountTransfer.Host.csproj", "{8D19BBF7-0971-4026-843E-02C3EDDE0991}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MichalBialecki.com.OrleansCore.AccountTransfer.Client", "MichalBialecki.com.OrleansCore.AccountTransfer.Client\MichalBialecki.com.OrleansCore.AccountTransfer.Client.csproj", "{849C3E6D-891D-413B-A51F-A9A2E476A060}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MichalBialecki.com.OrleansCore.AccountTransfer.Grains", "MichalBialecki.com.OrleansCore.AccountTransfer.Grains\MichalBialecki.com.OrleansCore.AccountTransfer.Grains.csproj", "{1CBB51FE-9E99-4124-8077-BCAA53919394}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MichalBialecki.com.OrleansCore.AccountTransfer.Interfaces", "MichalBialecki.com.OrleansCore.AccountTransfer.Interfaces\MichalBialecki.com.OrleansCore.AccountTransfer.Interfaces.csproj", "{785D8B6B-C346-4DE0-A231-3ED96BB684F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D19BBF7-0971-4026-843E-02C3EDDE0991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D19BBF7-0971-4026-843E-02C3EDDE0991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D19BBF7-0971-4026-843E-02C3EDDE0991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D19BBF7-0971-4026-843E-02C3EDDE0991}.Release|Any CPU.Build.0 = Release|Any CPU
+		{849C3E6D-891D-413B-A51F-A9A2E476A060}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{849C3E6D-891D-413B-A51F-A9A2E476A060}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{849C3E6D-891D-413B-A51F-A9A2E476A060}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{849C3E6D-891D-413B-A51F-A9A2E476A060}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CBB51FE-9E99-4124-8077-BCAA53919394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CBB51FE-9E99-4124-8077-BCAA53919394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CBB51FE-9E99-4124-8077-BCAA53919394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CBB51FE-9E99-4124-8077-BCAA53919394}.Release|Any CPU.Build.0 = Release|Any CPU
+		{785D8B6B-C346-4DE0-A231-3ED96BB684F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{785D8B6B-C346-4DE0-A231-3ED96BB684F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{785D8B6B-C346-4DE0-A231-3ED96BB684F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{785D8B6B-C346-4DE0-A231-3ED96BB684F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C9AAF51-39A5-46D7-B0B9-4FD933F1FA17}
+	EndGlobalSection
+EndGlobal
