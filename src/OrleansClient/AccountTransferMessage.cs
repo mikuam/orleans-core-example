@@ -1,4 +1,4 @@
-﻿namespace MichalBialecki.com.OrleansCore.AccountTransfer.Client
+﻿namespace OrleansClient
 {
     public class AccountTransferMessage
     {

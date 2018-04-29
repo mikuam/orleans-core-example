@@ -1,4 +1,4 @@
-﻿namespace MichalBialecki.com.OrleansCore.AccountTransfer.Grains
+﻿namespace AccountTransfer.Grains
 {
     public class BalanceUpdateMessage
     {

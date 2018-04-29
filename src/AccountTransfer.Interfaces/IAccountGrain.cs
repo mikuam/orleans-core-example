@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Orleans;
 
-namespace MichalBialecki.com.OrleansCore.AccountTransfer.Interfaces
+namespace AccountTransfer.Interfaces
 {
     public interface IAccountGrain : IGrainWithIntegerKey
     {
