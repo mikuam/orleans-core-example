@@ -8,6 +8,7 @@ using Orleans.Configuration;
 using System.Net;
 using AccountTransfer.Grains;
 using Microsoft.Extensions.DependencyInjection;
+using AccountTransfer.Interfaces;
 
 namespace OrleansSiloHost
 {
@@ -49,6 +50,7 @@ namespace OrleansSiloHost
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(AccountGrain).Assembly).WithReferences())
                 .ConfigureLogging(logging => logging.AddConsole())
+                .ConfigureServices(context => ConfigureDI(context))
                 .AddMemoryGrainStorageAsDefault()
                 .UseInClusterTransactionManager()
                 .UseInMemoryTransactionLog()
@@ -57,6 +59,13 @@ namespace OrleansSiloHost
             var host = builder.Build();
             await host.StartAsync();
             return host;
+        }
+
+        private static IServiceProvider ConfigureDI(IServiceCollection services)
+        {
+            services.AddSingleton<IServiceBusClient, ServiceBusClient>();
+
+            return services.BuildServiceProvider();
         }
     }
 }

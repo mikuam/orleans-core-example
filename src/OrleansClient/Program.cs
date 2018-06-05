@@ -87,7 +87,11 @@ namespace OrleansClient
 
         private static void DoClientWork(IClusterClient client)
         {
-            var subscriptionClient = new SubscriptionClient(ServiceBusConnectionString, "accountTransferUpdates", "orleansSubscription");
+            var subscriptionClient = new SubscriptionClient(
+                ServiceBusConnectionString,
+                "accountTransferUpdates",
+                "orleansSubscription",
+                ReceiveMode.ReceiveAndDelete);
             subscriptionClient.PrefetchCount = 1000;
 
             try
@@ -100,11 +104,12 @@ namespace OrleansClient
 
                         await client.GetGrain<IAccountGrain>(updateMessage.From).Withdraw(updateMessage.Amount);
                         await client.GetGrain<IAccountGrain>(updateMessage.To).Deposit(updateMessage.Amount);
-
-                        await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
+                        
+                        Console.WriteLine($"Processed a message from {updateMessage.From} to {updateMessage.To}");
+                        await Task.CompletedTask;
                     },
                     new MessageHandlerOptions(HandleException)
-                    { MaxConcurrentCalls = 1, AutoComplete = false });
+                    { MaxConcurrentCalls = 5, AutoComplete = true });
             }
             catch (Exception e)
             {

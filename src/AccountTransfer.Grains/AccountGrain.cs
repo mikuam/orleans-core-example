@@ -4,6 +4,9 @@ using Orleans;
 using Orleans.CodeGeneration;
 using Orleans.Transactions.Abstractions;
 using AccountTransfer.Interfaces;
+using Microsoft.Azure.ServiceBus;
+using System.Text;
+using Newtonsoft.Json;
 
 [assembly: GenerateSerializer(typeof(AccountTransfer.Grains.Balance))]
 
@@ -19,29 +22,54 @@ namespace AccountTransfer.Grains
     {
         private readonly ITransactionalState<Balance> balance;
 
+        private readonly IServiceBusClient serviceBusClient;
+
         public AccountGrain(
+            IServiceBusClient serviceBusClient,
             [TransactionalState("balance")] ITransactionalState<Balance> balance)
         {
+            this.serviceBusClient = serviceBusClient;
             this.balance = balance ?? throw new ArgumentNullException(nameof(balance));
         }
 
-        Task IAccountGrain.Deposit(decimal amount)
+        async Task IAccountGrain.Deposit(decimal amount)
         {
-            this.balance.State.Value += amount;
-            this.balance.Save();
-            return Task.CompletedTask;
+            try
+            {
+                this.balance.State.Value += amount;
+                this.balance.Save();
+
+                await NotifyBalanceUpdate();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
-        Task IAccountGrain.Withdraw(decimal amount)
+        async Task IAccountGrain.Withdraw(decimal amount)
         {
             this.balance.State.Value -= amount;
             this.balance.Save();
-            return Task.CompletedTask;
+
+            await NotifyBalanceUpdate();
         }
 
         Task<decimal> IAccountGrain.GetBalance()
         {
             return Task.FromResult(this.balance.State.Value);
+        }
+
+        private async Task NotifyBalanceUpdate()
+        {
+            var balanceUpdate = new BalanceUpdateMessage
+            {
+                AccountNumber = (int)this.GetPrimaryKeyLong(),
+                Balance = this.balance.State.Value
+            };
+
+            var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(balanceUpdate)));
+            await serviceBusClient.SendMessageAsync(message);
         }
     }
 }
