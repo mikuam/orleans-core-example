@@ -14,6 +14,8 @@ namespace OrleansSiloHost
 {
     public class Program
     {
+        private const string CosmosBDConnectionString = "DefaultEndpointsProtocol=https;AccountName=bialecki-t;AccountKey=8zXEwfy1qixbuGmovosUhuXN3WsQgIKn76x2WnqzKvxsC3itB0c45sVQ36P6SGnHxsRgmGh0fN4bZETOXmWTuw==;TableEndpoint=https://bialecki-t.table.cosmosdb.azure.com:443/;";
+
         public static int Main(string[] args)
         {
             return RunMainAsync().Result;
@@ -42,18 +44,17 @@ namespace OrleansSiloHost
         {
             var builder = new SiloHostBuilder()
                 .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options =>
-                {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "AccountTransferApp";
-                })
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(AccountGrain).Assembly).WithReferences())
-                .ConfigureLogging(logging => logging.AddConsole())
                 .ConfigureServices(context => ConfigureDI(context))
-                .AddMemoryGrainStorageAsDefault()
+                .ConfigureLogging(logging => logging.AddConsole())
                 .UseInClusterTransactionManager()
                 .UseInMemoryTransactionLog()
+                .AddAzureTableGrainStorageAsDefault(
+                    (options) =>
+                    {
+                        options.ConnectionString = CosmosBDConnectionString;
+                        options.UseJson = true;
+                    })
                 .UseTransactionalState();
 
             var host = builder.Build();

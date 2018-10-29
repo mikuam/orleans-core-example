@@ -109,7 +109,7 @@ namespace OrleansClient
                         await Task.CompletedTask;
                     },
                     new MessageHandlerOptions(HandleException)
-                    { MaxConcurrentCalls = 5, AutoComplete = true });
+                    { MaxConcurrentCalls = 10, AutoComplete = true });
             }
             catch (Exception e)
             {
