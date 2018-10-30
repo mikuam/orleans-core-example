@@ -9,12 +9,14 @@ using System.Net;
 using AccountTransfer.Grains;
 using Microsoft.Extensions.DependencyInjection;
 using AccountTransfer.Interfaces;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace OrleansSiloHost
 {
     public class Program
     {
-        private const string CosmosBDConnectionString = "DefaultEndpointsProtocol=https;AccountName=bialecki-t;AccountKey=8zXEwfy1qixbuGmovosUhuXN3WsQgIKn76x2WnqzKvxsC3itB0c45sVQ36P6SGnHxsRgmGh0fN4bZETOXmWTuw==;TableEndpoint=https://bialecki-t.table.cosmosdb.azure.com:443/;";
+        private static IConfigurationRoot configuration;
 
         public static int Main(string[] args)
         {
@@ -25,6 +27,12 @@ namespace OrleansSiloHost
         {
             try
             {
+                var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+                configuration = builder.Build();
+
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();
@@ -52,7 +60,7 @@ namespace OrleansSiloHost
                 .AddAzureTableGrainStorageAsDefault(
                     (options) =>
                     {
-                        options.ConnectionString = CosmosBDConnectionString;
+                        options.ConnectionString = configuration.GetConnectionString("CosmosBDConnectionString");
                         options.UseJson = true;
                     })
                 .UseTransactionalState();
@@ -64,7 +72,7 @@ namespace OrleansSiloHost
 
         private static IServiceProvider ConfigureDI(IServiceCollection services)
         {
-            services.AddSingleton<IServiceBusClient, ServiceBusClient>();
+            services.AddSingleton<IServiceBusClient>((sp) => new ServiceBusClient(configuration.GetConnectionString("ServiceBusConnectionString")));
 
             return services.BuildServiceProvider();
         }
