@@ -9,11 +9,15 @@ using System.Net;
 using AccountTransfer.Grains;
 using Microsoft.Extensions.DependencyInjection;
 using AccountTransfer.Interfaces;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace OrleansSiloHost
 {
     public class Program
     {
+        private static IConfigurationRoot configuration;
+
         public static int Main(string[] args)
         {
             return RunMainAsync().Result;
@@ -23,6 +27,12 @@ namespace OrleansSiloHost
         {
             try
             {
+                var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+                configuration = builder.Build();
+
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();
@@ -42,18 +52,17 @@ namespace OrleansSiloHost
         {
             var builder = new SiloHostBuilder()
                 .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options =>
-                {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "AccountTransferApp";
-                })
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(AccountGrain).Assembly).WithReferences())
-                .ConfigureLogging(logging => logging.AddConsole())
                 .ConfigureServices(context => ConfigureDI(context))
-                .AddMemoryGrainStorageAsDefault()
+                .ConfigureLogging(logging => logging.AddConsole())
                 .UseInClusterTransactionManager()
                 .UseInMemoryTransactionLog()
+                .AddAzureTableGrainStorageAsDefault(
+                    (options) =>
+                    {
+                        options.ConnectionString = configuration.GetConnectionString("CosmosBDConnectionString");
+                        options.UseJson = true;
+                    })
                 .UseTransactionalState();
 
             var host = builder.Build();
@@ -63,7 +72,7 @@ namespace OrleansSiloHost
 
         private static IServiceProvider ConfigureDI(IServiceCollection services)
         {
-            services.AddSingleton<IServiceBusClient, ServiceBusClient>();
+            services.AddSingleton<IServiceBusClient>((sp) => new ServiceBusClient(configuration.GetConnectionString("ServiceBusConnectionString")));
 
             return services.BuildServiceProvider();
         }

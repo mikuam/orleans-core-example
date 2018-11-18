@@ -9,6 +9,8 @@ using Orleans.Configuration;
 using Microsoft.Azure.ServiceBus;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace OrleansClient
 {
@@ -17,7 +19,7 @@ namespace OrleansClient
     /// </summary>
     public class Program
     {
-        private const string ServiceBusConnectionString = "Endpoint=sb://bialecki.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=39cH/mE4siF49REMd9xtjVlUwoc0yPJNz9J8isRc9vY=";
+        private static IConfigurationRoot configuration;
 
         static int Main(string[] args)
         {
@@ -28,6 +30,12 @@ namespace OrleansClient
         {
             try
             {
+                var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+                configuration = builder.Build();
+
                 using (var client = await StartClientWithRetries())
                 {
                     DoClientWork(client);
@@ -88,7 +96,7 @@ namespace OrleansClient
         private static void DoClientWork(IClusterClient client)
         {
             var subscriptionClient = new SubscriptionClient(
-                ServiceBusConnectionString,
+                configuration.GetConnectionString("ServiceBusConnectionString"),
                 "accountTransferUpdates",
                 "orleansSubscription",
                 ReceiveMode.ReceiveAndDelete);
@@ -109,7 +117,7 @@ namespace OrleansClient
                         await Task.CompletedTask;
                     },
                     new MessageHandlerOptions(HandleException)
-                    { MaxConcurrentCalls = 5, AutoComplete = true });
+                    { MaxConcurrentCalls = 10, AutoComplete = true });
             }
             catch (Exception e)
             {

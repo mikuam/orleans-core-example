@@ -18,26 +18,22 @@ namespace AccountTransfer.Grains
         public decimal Value { get; set; } = 1000;
     }
 
-    public class AccountGrain : Grain, IAccountGrain
+    public class AccountGrain : Grain<Balance>, IAccountGrain
     {
-        private readonly ITransactionalState<Balance> balance;
-
         private readonly IServiceBusClient serviceBusClient;
 
         public AccountGrain(
-            IServiceBusClient serviceBusClient,
-            [TransactionalState("balance")] ITransactionalState<Balance> balance)
+            IServiceBusClient serviceBusClient)
         {
             this.serviceBusClient = serviceBusClient;
-            this.balance = balance ?? throw new ArgumentNullException(nameof(balance));
         }
 
         async Task IAccountGrain.Deposit(decimal amount)
         {
             try
             {
-                this.balance.State.Value += amount;
-                this.balance.Save();
+                this.State.Value += amount;
+                await this.WriteStateAsync();
 
                 await NotifyBalanceUpdate();
             }
@@ -49,15 +45,15 @@ namespace AccountTransfer.Grains
 
         async Task IAccountGrain.Withdraw(decimal amount)
         {
-            this.balance.State.Value -= amount;
-            this.balance.Save();
+            this.State.Value -= amount;
+            await this.WriteStateAsync();
 
             await NotifyBalanceUpdate();
         }
 
         Task<decimal> IAccountGrain.GetBalance()
         {
-            return Task.FromResult(this.balance.State.Value);
+            return Task.FromResult(this.State.Value);
         }
 
         private async Task NotifyBalanceUpdate()
@@ -65,7 +61,7 @@ namespace AccountTransfer.Grains
             var balanceUpdate = new BalanceUpdateMessage
             {
                 AccountNumber = (int)this.GetPrimaryKeyLong(),
-                Balance = this.balance.State.Value
+                Balance = this.State.Value
             };
 
             var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(balanceUpdate)));

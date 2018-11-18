@@ -6,13 +6,11 @@ namespace AccountTransfer.Grains
 {
     public class ServiceBusClient : IServiceBusClient
     {
-        private const string ServiceBusConnectionString = "Endpoint=sb://bialecki.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=39cH/mE4siF49REMd9xtjVlUwoc0yPJNz9J8isRc9vY=";
-
         private readonly TopicClient topicClient;
 
-        public ServiceBusClient()
+        public ServiceBusClient(string connectionString)
         {
-            topicClient = new TopicClient(ServiceBusConnectionString, "balanceUpdates");
+            topicClient = new TopicClient(connectionString, "balanceUpdates");
         }
 
         public async Task SendMessageAsync(Message message)
