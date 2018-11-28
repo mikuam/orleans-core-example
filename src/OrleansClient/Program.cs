@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Runtime;
 using AccountTransfer.Interfaces;
-using System.Net;
 using Orleans.Configuration;
 using Microsoft.Azure.ServiceBus;
 using System.Text;
@@ -59,10 +58,6 @@ namespace OrleansClient
             {
                 try
                 {
-                    int gatewayPort = 30000;
-                    var siloAddress = IPAddress.Loopback;
-                    var gateway = new IPEndPoint(siloAddress, gatewayPort);
-
                     client = new ClientBuilder()
                         .UseLocalhostClustering()
                         .Configure<ClusterOptions>(options =>
@@ -117,7 +112,11 @@ namespace OrleansClient
                         await Task.CompletedTask;
                     },
                     new MessageHandlerOptions(HandleException)
-                    { MaxConcurrentCalls = 10, AutoComplete = true });
+                    {
+                        MaxAutoRenewDuration = TimeSpan.FromMinutes(60),
+                        MaxConcurrentCalls = 20,
+                        AutoComplete = true
+                    });
             }
             catch (Exception e)
             {
